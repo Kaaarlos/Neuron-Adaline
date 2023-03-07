@@ -3,10 +3,11 @@ from math import e
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+from sklearn.preprocessing import MinMaxScaler
 import time
 
-puntitos =[]
-uno_cero=[]
+primero =0
+tercero=3
 
 #Interfaz
 ventana = tkinter.Tk()
@@ -21,25 +22,13 @@ def function_act(w,x,b):
         return 0
 
 def entrada_datos():
+    aumento=0
+    entradas=result[primero:tercero+1]
 
-    weights = np.random.uniform(-1,1,size=2)
-    bia = np.random.uniform(-1,1) 
-    tasa_aprendizaje = 0.01
     epocas = 100
-
-    for epoca in range(epocas):
-        error_total = 0
-        for i in range(len(puntitos)):
-            prediccion=function_act(weights,puntitos[i],bia)
-            error = uno_cero[i] - prediccion
-            error_total += error**2
-            weights[0] += tasa_aprendizaje * puntitos[i][0] * error
-            weights[1] += tasa_aprendizaje * puntitos[i][1] * error
-            
-            bia += tasa_aprendizaje * error
+    aprendizaje= 0.001
+    
     draw_plane()
-
-
 
 entrada1  =tkinter.Button(ventana, text = "Calcular",command = entrada_datos)
 entrada1.pack()
@@ -65,10 +54,9 @@ y = -y/2
 y += 0.5*(5 - np.min(y)) 
 
 #ruido
-k=y
-for i in range(len(k)):
-    rand_nums = np.random.uniform(-1,1,size=k.shape)
-    result = k + rand_nums
+for i in range(len(y)):
+    rand_nums = np.random.uniform(-1,1,size=y.shape)
+    result = y + rand_nums
     
 
 coordenadas = np.array(list(zip(x,result))) # Creamos un arreglo de coordenadas del ruido
@@ -83,8 +71,8 @@ plt.plot(x,result,'o-')
 def draw_plane():
     print("actualizacion grafica")
     plt.cla()
-    ax.set_xlim(-10, 10)
-    ax.set_ylim(-10, 10)
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 10)
     ax.set_title("Plano Cartesiano")
     #Linea horizontal
     ax.axhline(y=0, color='black', lw=2)
