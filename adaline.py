@@ -1,43 +1,77 @@
-import tkinter
 from math import e
 import matplotlib.pyplot as plt
 import numpy as np
-import random
-from sklearn.preprocessing import MinMaxScaler
-import time
-
-primero =0
-tercero=3
+import tkinter
 
 #Interfaz
 ventana = tkinter.Tk()
-ventana.geometry("200x100")
+ventana.geometry("200x200")
+ventana.title("IA-P3")
 
-# Función de activación
-def function_act(w,x,b):
-    z = w * x
-    if z.sum()  + b > 0:
-        return 1
-    else:
-        return 0
+bias = 1
+lr=0.01
 
-def entrada_datos():
-    aumento=0
-    entradas=result[primero:tercero+1]
+x = np.linspace(0, 5, 10000)
+y = 1 * np.sin(2 * np.pi * (x - 1) / 4)
 
-    epocas = 100
-    aprendizaje= 0.001
+ruido = -0.9*np.random.randn(len(y))
+y_ruido = y + ruido
+
+weights = np.random.uniform(-1, 1, size=3)
+
+def Adaline(y_ruido, weights, bias, lr):
+
+    w = np.array(weights)
+    b = bias
+    learning_rate = lr
     
-    draw_plane()
+    x = y_ruido[0:3]
+    
+    filtrado = np.zeros(len(y_ruido))
+    filtrado[0:3] = y_ruido[0:3]
+    
+    for k in range(3, len(y_ruido)):
+        y_pred = np.dot(x, w) + b
+        
+        error = y_pred - y_ruido[k]
+        
+        w -= learning_rate * error * x
+        b -= learning_rate * error
+        
+        x = np.concatenate(([y_ruido[k]], x[0:2]))
+        
+        filtrado[k] = y_pred
+        
+    return filtrado
 
-entrada1  =tkinter.Button(ventana, text = "Calcular",command = entrada_datos)
+
+def draw_plane():
+    plt.cla()
+    ax.set_xlim(0, 5)
+    ax.set_ylim(-5, 5)
+    #Linea horizontal
+    ax.axhline(y=0, color='black', lw=2)
+
+    #Linea vertical
+    ax.axvline(x=0, color='black', lw=2)
+
+    y_filtered = Adaline(y_ruido, weights,bias,lr)
+
+    plt.plot(x, y_ruido, label='Ruido')
+    plt.plot(x, y_filtered,label='Filtrada')
+    plt.plot(x, y,label='Original')
+
+    plt.legend()
+    plt.show()
+
+entrada1  =tkinter.Button(ventana, text = "Filtrar",command = draw_plane, fg= "dark blue", background="#C4F9D1")
 entrada1.pack()
+entrada1.place(x=60, y=90, height= 40, width=80)
+etiqueta = tkinter.Label(ventana, text="Adaline", fg="dark green", height=3).pack()
 
-#Grafica
 fig, ax = plt.subplots()
-ax.set_xlim(0, 10)
-ax.set_ylim(0, 10)
-ax.set_title("Plano Cartesiano")
+ax.set_xlim(0, 5)
+ax.set_ylim(-5, 5)
 
 #Linea horizontal
 ax.axhline(y=0, color='black', lw=2)
@@ -45,49 +79,10 @@ ax.axhline(y=0, color='black', lw=2)
 #Linea vertical
 ax.axvline(x=0, color='black', lw=2)
 
-x = np.linspace(0, 20, 100)#[::1] # Valores de x de 0 a 100
-y = 5*np.sin(x*(2*np.pi/5)) # Función senoidal con amplitud 5
+plt.plot(x, y_ruido, label='Ruido')
+plt.plot(x, y,label='Original')
 
-# Escalamos la función para que vaya de 5 a -5 en y
-y = -y/2
-
-y += 0.5*(5 - np.min(y)) 
-
-#ruido
-for i in range(len(y)):
-    rand_nums = np.random.uniform(-1,1,size=y.shape)
-    result = y + rand_nums
-    
-
-coordenadas = np.array(list(zip(x,result))) # Creamos un arreglo de coordenadas del ruido
-
-#puntos "x"
-ax.plot(x, y, 'o-')
-
-#linea
-plt.plot(x,y)
-plt.plot(x,result,'o-')
-
-def draw_plane():
-    print("actualizacion grafica")
-    plt.cla()
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 10)
-    ax.set_title("Plano Cartesiano")
-    #Linea horizontal
-    ax.axhline(y=0, color='black', lw=2)
-
-    #Linea vertical
-    ax.axvline(x=0, color='black', lw=2)
-
-    #puntos "x"
-    ax.plot(x, y, 'o-')
-
-    #linea
-    plt.plot(x,y)
-    plt.plot(x,result,'o-')
-    
-
+plt.legend()
 plt.show()
-
+    
 ventana.mainloop()
